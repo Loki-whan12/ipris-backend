@@ -7,7 +7,7 @@ from models import Plant
 plant_bp = Blueprint('plant_bp', __name__)
 
 # Create a new plant
-@plant_bp.route('/plants/create', methods=['POST'])
+@plant_bp.route('/create', methods=['POST'])
 def create_plant():
     try:
         data = request.form
@@ -49,7 +49,7 @@ def create_plant():
     except Exception as e:
         return jsonify({'message': f'An error occurred: {str(e)}'}), 500
 
-@plant_bp.route('/plants/<username>', methods=['GET'])
+@plant_bp.route('/<username>', methods=['GET'])
 def get_plants_by_username(username):
     try:
         plants = Plant.query.filter_by(username=username).all()
@@ -96,7 +96,7 @@ def get_plants_by_username(username):
 
 
 # Get all plants
-@plant_bp.route('/plants/all', methods=['GET'])
+@plant_bp.route('/all', methods=['GET'])
 def get_plants():
     plants = Plant.query.all()
     if plants:
@@ -107,7 +107,7 @@ def get_plants():
 
 
 # Check if a plant has been uploaded before
-@plant_bp.route('/plants/count/<string:username>', methods=['GET'])
+@plant_bp.route('/count/<string:username>', methods=['GET'])
 def plant_count(username):
     plant_count = db.session.query(Plant).filter_by(username=username).count()
     if plant_count == 0:
@@ -116,7 +116,7 @@ def plant_count(username):
 
 
 # Delete a plant
-@plant_bp.route('/plants/delete/<int:id>', methods=['DELETE'])
+@plant_bp.route('/delete/<int:id>', methods=['DELETE'])
 def delete_plant(id):
     plant = Plant.query.get(id)
     if plant is None:

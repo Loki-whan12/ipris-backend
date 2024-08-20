@@ -6,7 +6,7 @@ from models import Comment
 comment_bp = Blueprint('comment_bp', __name__)
 
 # Create a new comment
-@comment_bp.route('/comments/create', methods=['POST'])
+@comment_bp.route('/create', methods=['POST'])
 def create_comment():
     data = request.get_json()
     new_comment = Comment(comment=data['comment'], rate=data['rate'], username=data['username'])
@@ -16,7 +16,7 @@ def create_comment():
 
 
 # Get all comments
-@comment_bp.route('/comments/all', methods=['GET'])
+@comment_bp.route('/all', methods=['GET'])
 def get_comments():
     comments = Comment.query.all()
     if comments:
@@ -25,7 +25,7 @@ def get_comments():
 
 
 # Get a comment by id
-@comment_bp.route('/comments/<int:id>', methods=['GET'])
+@comment_bp.route('/<int:id>', methods=['GET'])
 def get_comment(id):
     comment = Comment.query.get(id)
     if comment is None:
@@ -34,7 +34,7 @@ def get_comment(id):
 
 
 # Delete a comment
-@comment_bp.route('/comments/delete/<int:id>', methods=['DELETE'])
+@comment_bp.route('/delete/<int:id>', methods=['DELETE'])
 def delete_comment(id):
     comment = Comment.query.get(id)
     if comment is None:
@@ -45,7 +45,7 @@ def delete_comment(id):
 
 
 # Update a comment
-@comment_bp.route('/comments/update/<int:id>', methods=['PUT'])
+@comment_bp.route('/update/<int:id>', methods=['PUT'])
 def update_comment(id):
     data = request.get_json()
     comment = Comment.query.get(id)
