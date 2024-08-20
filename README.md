@@ -1,4 +1,3 @@
-
 # Flask Backend for Plant Identification System
 
 This repository contains the backend code for a plant identification system built with Flask. The backend provides APIs for user management, including creating new users and authenticating them, as well as functionality to fetch and store plant information.
@@ -123,21 +122,13 @@ Modify `config.py` to update the database connection and other settings.
 - **Password Hashing:** Implement password hashing using `werkzeug.security` to ensure user passwords are securely stored.
 - **Logging:** Implement logging to track application errors and debug issues effectively.
 
-## Testing
-
-To run tests, use:
-
-```bash
-pytest
-```
-
 ## Contributing
 
 Contributions are welcome! Please submit a pull request or open an issue to suggest improvements.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Acknowledgments
 
@@ -145,4 +136,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - SQLAlchemy for ORM.
 - Werkzeug for password hashing.
 - PostgreSQL for the database management.
-- Any external libraries or tools used in the project.
