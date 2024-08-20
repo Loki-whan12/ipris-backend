@@ -124,3 +124,16 @@ def delete_plant(id):
     db.session.delete(plant)
     db.session.commit()
     return jsonify({'message': 'Plant deleted successfully'}), 200
+
+@plant_bp.route('/uses/<string:common_name>/<string:botanical_name>', methods=['GET'])
+def plant_uses(common_name, botanical_name):
+    if "-" in common_name:
+        common_name = common_name.replace('-', ' ')
+    if '-' in botanical_name:
+        botanical_name = botanical_name.replace('-', ' ')
+    uses = get_plant_uses_pfaf(common_name, botanical_name)
+    if uses:
+        return jsonify({'plant_uses': uses, 'type': 'dict'}), 200
+    else:
+        wikipedia_info = get_plant_use_wikipedia(common_name)
+        return jsonify({'plant_uses': wikipedia_info, 'type': 'dict'}), 200
