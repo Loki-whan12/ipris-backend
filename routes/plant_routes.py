@@ -1,7 +1,8 @@
 import base64
 import json
 from flask import Blueprint, request, jsonify
-from models import Plant, db
+from models import Plant
+from app import db
 
 plant_bp = Blueprint('plant_bp', __name__)
 
