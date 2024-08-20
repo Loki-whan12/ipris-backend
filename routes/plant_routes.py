@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, request, jsonify
 from db_init import db
 from models import Plant
+from utils import get_plant_use_wikipedia, get_plant_uses_pfaf
 
 plant_bp = Blueprint('plant_bp', __name__)
 
