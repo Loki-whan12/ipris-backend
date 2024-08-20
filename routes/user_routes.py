@@ -40,7 +40,8 @@ def get_users():
     return jsonify([{
         "username": user.username,
         "name": user.name,
-        "email": user.email
+        "email": user.email,
+        "password": user.password
     } for user in users]), 200
 
 # Get a user by username
