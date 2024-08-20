@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash
 user_bp = Blueprint('user_bp', __name__)
 
 @user_bp.route('/create-secure', methods=['POST'])
-def create_user():
+def create_user_secure():
     data = request.json
     if db.session.query(db.exists().where(User.username == data['username'])).scalar():
         return jsonify({'message': 'Username taken'}), 409
