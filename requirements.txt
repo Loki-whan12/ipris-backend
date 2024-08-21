@@ -1,7 +1,10 @@
 Flask
+gunicorn
+waitress
 Flask-CORS
 Flask-SQLAlchemy
 beautifulsoup4
 requests
 wikipedia-api
 Werkzeug
+psycopg2-binary
