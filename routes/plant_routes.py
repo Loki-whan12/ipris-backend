@@ -1,18 +1,26 @@
 import base64
 import json
+import os
 from flask import Blueprint, request, jsonify
 from db_init import db
 from models import Plant
 from utils import get_plant_use_wikipedia, get_plant_uses_pfaf
 from flask import Flask, request, jsonify
 from tensorflow.keras.models import load_model
+import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
+import logging
+import io
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+
 
 plant_bp = Blueprint('plant_bp', __name__)
 
 # Load the trained model from the same directory
-model = load_model('plant_classifier_model.h5')
+model = load_model('routes/plant_classifier.h5')
 
 # Create a new plant
 @plant_bp.route('/create', methods=['POST'])
@@ -146,41 +154,56 @@ def plant_uses(common_name, botanical_name):
         wikipedia_info = get_plant_use_wikipedia(common_name)
         return jsonify({'plant_uses': wikipedia_info, 'type': 'dict'}), 200
     
+
 @plant_bp.route('/check-if-plant/', methods=['POST'])
 def check_if_plant():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-
     try:
-        # Prepare the image for prediction
-        img = image.load_img(file, target_size=(150, 150))
-        img_array = image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0) / 255.0  # Normalize the image
+        # Step 1: Check if a file was uploaded
+        if 'file' not in request.files:
+            logging.error("No file part in the request")
+            return jsonify({"error": "No file part"}), 400
 
-        # Make a prediction
+        file = request.files['file']
+        if file.filename == '':
+            logging.error("No selected file")
+            return jsonify({"error": "No selected file"}), 400
+
+        # Step 2: Convert the FileStorage object to an io.BytesIO stream
+        logging.info("Loading and preprocessing the image")
+        file_stream = io.BytesIO(file.read())  # Convert file to a BytesIO stream
+
+        # Step 3: Load and preprocess the image
+        img = image.load_img(file_stream, target_size=(150, 150))  # Adjust target size based on model requirements
+        img_array = image.img_to_array(img) / 255.0  # Normalize the image
+        img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+
+        # Step 4: Make a prediction
+        logging.info("Making predictions using the model")
         predictions = model.predict(img_array)
-        predicted_class = np.argmax(predictions[0]) 
-        confidence = np.max(predictions)
+        predicted_class = np.argmax(predictions[0])
+        confidence = float(np.max(predictions[0]))  # Convert to float for JSON serialization
 
-        # Set a threshold to determine if it's a plant
+        # Step 5: Determine if it's a plant based on confidence threshold
         confidence_threshold = 0.5
-
         if confidence < confidence_threshold:
             result = "Not a plant"
         else:
-            # Convert class_indices to a list of class names
-            class_names = list(train_generator.class_indices.keys())
-
-            # Get the corresponding class name
+            # Load class names to get the class label
+            json_path = os.path.join(os.path.dirname(__file__), 'class_names.json')
+            with open(json_path, 'r') as f:
+                class_names = json.load(f)
             result = class_names[predicted_class]
 
-        return jsonify({"result": result, "confidence": confidence}), 201
+        # Step 6: Send the result back as JSON response
+        response = {
+            "result": result,
+            "confidence": confidence
+        }
+
+        logging.info(f"Result: {response}")
+        return jsonify(response), 201
 
     except Exception as e:
+        # Detailed error logging
+        logging.error(f"Error processing the request: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
-  

@@ -8,3 +8,8 @@ requests
 wikipedia-api
 Werkzeug
 psycopg2-binary
+tensorflow
+keras
+numpy
+matplotlib
+scipy
