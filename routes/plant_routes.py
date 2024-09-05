@@ -4,8 +4,15 @@ from flask import Blueprint, request, jsonify
 from db_init import db
 from models import Plant
 from utils import get_plant_use_wikipedia, get_plant_uses_pfaf
+from flask import Flask, request, jsonify
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import numpy as np
 
 plant_bp = Blueprint('plant_bp', __name__)
+
+# Load the trained model from the same directory
+model = load_model('plant_classifier_model.h5')
 
 # Create a new plant
 @plant_bp.route('/create', methods=['POST'])
@@ -150,12 +157,29 @@ def check_if_plant():
         return jsonify({"error": "No selected file"}), 400
 
     try:
-        # Process the image with your AI model
-        # For example, model.predict(image) where image is the file stream
-        # Replace the following with actual AI model prediction logic
-        result = 1 if 'plant' in file.filename else 0
+        # Prepare the image for prediction
+        img = image.load_img(file, target_size=(150, 150))
+        img_array = image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0) / 255.0  # Normalize the image
 
-        return jsonify({"result": result}), 201
+        # Make a prediction
+        predictions = model.predict(img_array)
+        predicted_class = np.argmax(predictions[0]) 
+        confidence = np.max(predictions)
+
+        # Set a threshold to determine if it's a plant
+        confidence_threshold = 0.5
+
+        if confidence < confidence_threshold:
+            result = "Not a plant"
+        else:
+            # Convert class_indices to a list of class names
+            class_names = list(train_generator.class_indices.keys())
+
+            # Get the corresponding class name
+            result = class_names[predicted_class]
+
+        return jsonify({"result": result, "confidence": confidence}), 201
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
