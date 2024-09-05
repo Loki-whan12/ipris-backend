@@ -138,3 +138,25 @@ def plant_uses(common_name, botanical_name):
     else:
         wikipedia_info = get_plant_use_wikipedia(common_name)
         return jsonify({'plant_uses': wikipedia_info, 'type': 'dict'}), 200
+    
+@plant_bp.route('/check-if-plant/', methods=['POST'])
+def check_if_plant():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    try:
+        # Process the image with your AI model
+        # For example, model.predict(image) where image is the file stream
+        # Replace the following with actual AI model prediction logic
+        result = 1 if 'plant' in file.filename else 0
+
+        return jsonify({"result": result}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+  
